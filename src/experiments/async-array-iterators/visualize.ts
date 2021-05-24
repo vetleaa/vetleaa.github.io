@@ -1,5 +1,6 @@
 import forEach from './src/forEach';
 import { getUniqueColors } from '../../utils/colors';
+import { asyncTimeout } from '../../utils/timeout';
 
 const SAMPLE_ARRAY = [1,2,3,4,5,6,7,8,9,10];
 
@@ -74,7 +75,7 @@ function animate(prevTime?: number) {
         });
 
         if (isAnimating) {
-            window.requestAnimationFrame(() => animate(now));
+            animate(now);
         }
     });
 }
@@ -87,10 +88,7 @@ async function visualize(el: HTMLElement, { workers } = DEFAULT_SETTINGS) {
     await forEach(SAMPLE_ARRAY, async (num) => {
         occupyLane(el, num);
 
-        await new Promise(resolve => {
-            const timeoutMs = Math.random() * 1500 + 500;
-            setTimeout(resolve, timeoutMs);
-        });
+        await asyncTimeout(Math.random() * 1500 + 500);
 
         releaseLane(el, num);
     }, { concurrency: workers });

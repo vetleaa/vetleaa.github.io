@@ -52,6 +52,11 @@ function getUniqueColors(num) {
   return Array(num).fill(null).map((_, index) => `#${(step * index).toString(16).padStart(6, "0")}`);
 }
 
+// src/utils/timeout.ts
+function asyncTimeout(timeout) {
+  return new Promise((resolve) => setTimeout(resolve, timeout));
+}
+
 // src/experiments/async-array-iterators/visualize.ts
 var SAMPLE_ARRAY = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 var MAX_POSSIBLE_TIME = SAMPLE_ARRAY.length * 2e3 / 2;
@@ -103,7 +108,7 @@ function animate(prevTime) {
       lanes[key].style.width = newWidth + "%";
     });
     if (isAnimating) {
-      window.requestAnimationFrame(() => animate(now));
+      animate(now);
     }
   });
 }
@@ -112,10 +117,7 @@ async function visualize(el, {workers} = DEFAULT_SETTINGS) {
   animate();
   await forEach_default(SAMPLE_ARRAY, async (num) => {
     occupyLane(el, num);
-    await new Promise((resolve) => {
-      const timeoutMs = Math.random() * 1500 + 500;
-      setTimeout(resolve, timeoutMs);
-    });
+    await asyncTimeout(Math.random() * 1500 + 500);
     releaseLane(el, num);
   }, {concurrency: workers});
   isAnimating = false;
